@@ -1,55 +1,40 @@
 import express from "express";
 import fetch from "node-fetch";
-import fs from "fs";
 
 const app = express();
 app.use(express.json());
 
 const BLING_TOKEN = process.env.BLING_TOKEN;
 
+// Função para buscar contatos (somente a primeira página, para debug)
 async function fetchAllContacts() {
-  let page = 1;
-  const limit = 100;
-  let allContacts = [];
-  let hasMore = true;
-
-  while (hasMore) {
-    const url = `https://www.bling.com.br/Api/v3/contacts?page=${page}&limit=${limit}`;
-    console.log("Buscando página:", page);
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${BLING_TOKEN}`,
-        "Content-Type": "application/json"
-      }
-    });
-
-    const data = await response.json();
-
-    if (!data.data || data.data.length === 0) {
-      hasMore = false;
-    } else {
-      allContacts = allContacts.concat(data.data);
-      page++;
-      hasMore = data.page < data.totalPages;
+  const url = `https://www.bling.com.br/Api/v3/contacts?page=1&limit=10`;
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${BLING_TOKEN}`,
+      "Content-Type": "application/json"
     }
-  }
+  });
 
-  return allContacts;
+  const data = await response.json();
+  return data;
 }
 
-// Endpoint para sincronizar contatos
+// Endpoint para sincronizar (debug: mostra a resposta crua da API)
 app.get("/sincronizar-contatos", async (req, res) => {
   try {
-    const contacts = await fetchAllContacts();
-
-    // Salvar em arquivo local (pode ser CSV depois)
-    fs.writeFileSync("contatos.json", JSON.stringify(contacts, null, 2));
-    res.json({ message: "Contatos sincronizados com sucesso!", total: contacts.length });
+    const data = await fetchAllContacts();
+    res.json(data);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Erro ao sincronizar contatos" });
   }
 });
 
-app.listen(10000, () => console.log("Servidor rodando na porta 10000"));
+app.get("/", (req, res) => {
+  res.send("API do Render rodando!");
+});
+
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
