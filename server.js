@@ -17,9 +17,7 @@ app.get("/consulta-cnpj", async (req, res) => {
     let cnpj = req.query.cnpj;
     if (!cnpj) return res.status(400).json({ error: "CNPJ é obrigatório" });
 
-    cnpj = cnpj.replace(/\D/g, "").padStart(14, "0");
-
-    const url = `https://www.bling.com.br/Api/v3/contacts?search=${cnpj}&types=client,supplier`;
+    const url = `https://www.bling.com.br/Api/v3/contacts?search=${encodeURIComponent(cnpj)}&types=client,supplier`;
     const response = await fetch(url, {
       method: "GET",
       headers: {
