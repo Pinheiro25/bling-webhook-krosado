@@ -4,12 +4,11 @@ import fetch from "node-fetch";
 const app = express();
 app.use(express.json());
 
-// Token do Bling via variável de ambiente
 const BLING_TOKEN = process.env.BLING_TOKEN;
 
-// Rota de teste simples (pra ver se está online)
+// Rota de teste (já funcionando)
 app.get("/", (req, res) => {
-  res.send("API do Bling rodando!");
+  res.send("API do Talentos Virtuais funcionando!");
 });
 
 // Rota para consulta de CNPJ
