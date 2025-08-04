@@ -12,12 +12,10 @@ app.get("/", (req, res) => {
 });
 
 // Rota para consulta de CNPJ
-app.get("/consulta-cnpj", async (req, res) => {
+app.get("/consulta-id", async (req, res) => {
   try {
-    let termo = req.query.cnpj;
-    if (!termo) return res.status(400).json({ error: "CNPJ é obrigatório" });
-
-    const url = `https://www.bling.com.br/Api/v3/contacts?search=${encodeURIComponent(termo)}`;
+    const id = req.query.id;
+    const url = `https://www.bling.com.br/Api/v3/contacts/${id}`;
     const response = await fetch(url, {
       method: "GET",
       headers: {
@@ -25,26 +23,12 @@ app.get("/consulta-cnpj", async (req, res) => {
         "Content-Type": "application/json"
       }
     });
-
     const data = await response.json();
-
-    if (data.error || !data.data || data.data.length === 0) {
-      return res.json({ existe: false, mensagem: "Cliente não encontrado no Bling", termo });
-    }
-
-    const cliente = data.data[0];
-    res.json({
-      existe: true,
-      cliente: {
-        nome: cliente.name,
-        documento: cliente.cnpj || cliente.document,
-        cidade: cliente.city,
-        status: cliente.status
-      }
-    });
+    res.json(data);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Erro na consulta ao Bling" });
+    res.status(500).json({ error: "Erro ao buscar por ID" });
   }
 });
+
+
 app.listen(10000, () => console.log("Servidor rodando na porta 10000"));
