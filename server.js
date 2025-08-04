@@ -12,10 +12,9 @@ app.get("/", (req, res) => {
 });
 
 // Rota para consulta de CNPJ
-app.get("/consulta-id", async (req, res) => {
+app.get("/listar-contatos", async (req, res) => {
   try {
-    const id = req.query.id;
-    const url = `https://www.bling.com.br/Api/v3/contacts/${id}`;
+    const url = `https://www.bling.com.br/Api/v3/contacts`; // sem filtros
     const response = await fetch(url, {
       method: "GET",
       headers: {
@@ -26,7 +25,8 @@ app.get("/consulta-id", async (req, res) => {
     const data = await response.json();
     res.json(data);
   } catch (error) {
-    res.status(500).json({ error: "Erro ao buscar por ID" });
+    console.error(error);
+    res.status(500).json({ error: "Erro ao listar contatos" });
   }
 });
 
