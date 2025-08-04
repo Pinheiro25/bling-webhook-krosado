@@ -14,7 +14,7 @@ app.get("/", (req, res) => {
 // Rota para consulta de CNPJ
 app.get("/listar-contatos", async (req, res) => {
   try {
-    const url = `https://www.bling.com.br/Api/v3/contacts`; // sem filtros
+    const url = `https://www.bling.com.br/Api/v3/contacts?page=1&limit=50`;
     const response = await fetch(url, {
       method: "GET",
       headers: {
