@@ -18,12 +18,9 @@ app.get("/consulta-cnpj", async (req, res) => {
     if (!cnpj) return res.status(400).json({ error: "CNPJ é obrigatório" });
 
     // Remove caracteres não numéricos
-    cnpj = cnpj.replace(/\D/g, "");
+    cnpj = cnpj.replace(/\D/g, "").padStart(14, "0");
 
-    // Garante 14 dígitos (adiciona zeros à esquerda, se necessário)
-    cnpj = cnpj.padStart(14, "0");
-
-    const url = `https://www.bling.com.br/Api/v3/contacts?cnpj=${cnpj}`;
+    const url = `https://www.bling.com.br/Api/v3/contacts?cnpj=${cnpj}&types=client,supplier`;
     const response = await fetch(url, {
       method: "GET",
       headers: {
@@ -34,21 +31,24 @@ app.get("/consulta-cnpj", async (req, res) => {
 
     const data = await response.json();
 
-    if (data.error) {
-      return res.json({ existe: false, mensagem: "Cliente não encontrado no Bling", cnpj: cnpj });
+    if (data.error || !data.data || data.data.length === 0) {
+      return res.json({ existe: false, mensagem: "Cliente não encontrado no Bling", cnpj });
     }
 
-    // Retorno simplificado
-    const cliente = data.data && data.data[0] ? {
-      nome: data.data[0].name,
-      cnpj: data.data[0].cnpj,
-      status: data.data[0].status
-    } : null;
-
-    res.json({ existe: true, cliente });
+    const cliente = data.data[0];
+    res.json({
+      existe: true,
+      cliente: {
+        nome: cliente.name,
+        cnpj: cliente.cnpj,
+        cidade: cliente.city,
+        status: cliente.status
+      }
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Erro na consulta ao Bling" });
   }
 });
+
 app.listen(10000, () => console.log("Servidor rodando na porta 10000"));
